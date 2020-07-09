@@ -545,7 +545,7 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime) {
 	// Update the rotation for the next draw
 	cubeRotation += deltaTime;
 }
-=======
+
 var cubeX = 0.0;
 var cubeY = 0.0;
 var cubeZ = -6.0;
