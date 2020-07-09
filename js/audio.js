@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 function initAudio() {
 	// Create Audio Context
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -78,4 +77,3 @@ function initAudio() {
 	}, false);
 }
 window.onload = initAudio();
->>>>>>> eef9478f40cc009588c6b5695770292fd19006d0
