@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .container {
 	position: relative;
 }
@@ -15,3 +16,22 @@ kbd.key {
   padding: 1px 2px 0;
   border: 1px solid black;
 }
+=======
+.container {
+	position: relative;
+}
+
+#overlay {
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	color: Yellow;
+	background-color: DodgerBlue;
+}
+
+kbd.key {
+  border-radius: 3px;
+  padding: 1px 2px 0;
+  border: 1px solid black;
+}
+>>>>>>> eef9478f40cc009588c6b5695770292fd19006d0
