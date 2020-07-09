@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 document.addEventListener('keydown', keyDownHandler, false);
 document.addEventListener('keyup', keyUpHandler, false);
 
@@ -66,4 +65,3 @@ function keyUpHandler(event) {
 	else if (event.keyCode == 81) downPressed = false;	// "Q" key
 	else if (event.keyCode == 69) upPressed = false;	// "E" key
 }
->>>>>>> eef9478f40cc009588c6b5695770292fd19006d0
