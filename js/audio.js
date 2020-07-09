@@ -37,7 +37,7 @@ function initAudio() {
 	}, false);
 }
 window.onload = initAudio();
-=======
+
 function initAudio() {
 	// Create Audio Context
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
