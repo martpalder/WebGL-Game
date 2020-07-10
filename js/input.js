@@ -12,10 +12,10 @@ var downPressed = false;
 
 function keyDownHandler(event) {
 	// Horizontal keys
-	if (event.keyCode == 87) forwardPressed = true;			// "W" key
-	else if (event.keyCode == 65) leftPressed = true;		// "A" key
-	else if (event.keyCode == 83) backwardPressed = true;	// "S" key
-	else if (event.keyCode == 68) rightPressed = true;		// "D" key
+	if (event.keyCode == 87 || event.keyCode == 38) forwardPressed = true;			// "W" or "Up" key
+	else if (event.keyCode == 65 || event.keyCode == 37) leftPressed = true;		// "A" or "Left" key
+	else if (event.keyCode == 83 || event.keyCode == 40) backwardPressed = true;	// "S" key or "Down" key
+	else if (event.keyCode == 68 || event.keyCode == 39) rightPressed = true;		// "D" key or "Right" key
 	// Vertical keys
 	else if (event.keyCode == 81) downPressed = true;	// "Q" key
 	else if (event.keyCode == 69) upPressed = true;		// "E" key
@@ -23,10 +23,10 @@ function keyDownHandler(event) {
 
 function keyUpHandler(event) {
 	// Horizontal keys
-	if (event.keyCode == 87) forwardPressed = false;		// "W" key
-	else if (event.keyCode == 65) leftPressed = false;		// "A" key
-	else if (event.keyCode == 83) backwardPressed = false;	// "S" key
-	else if (event.keyCode == 68) rightPressed = false;		// "D" key
+	if (event.keyCode == 87 || event.keyCode == 38) forwardPressed = false;		// "W" or "Up" key
+	else if (event.keyCode == 65 || event.keyCode == 37) leftPressed = false;		// "A" or "Left" key
+	else if (event.keyCode == 83 || event.keyCode == 40) backwardPressed = false;	// "S" key or "Down" key
+	else if (event.keyCode == 68 || event.keyCode == 39) rightPressed = false;		// "D" key or "Right" key
 	// Vertical keys
 	else if (event.keyCode == 81) downPressed = false;	// "Q" key
 	else if (event.keyCode == 69) upPressed = false;	// "E" key

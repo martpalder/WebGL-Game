@@ -1,4 +1,4 @@
-function initAudio() {
+function initAudio(url) {
 	// Create Audio Context
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	const audioContext = new AudioContext();
@@ -35,5 +35,7 @@ function initAudio() {
 	audioElement.addEventListener('ended', () => {
 		playButton.dataset.playing = 'false';
 	}, false);
+	
+	// Set audio file
+	audioElement.src = url;
 }
-window.onload = initAudio();

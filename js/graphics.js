@@ -5,12 +5,10 @@ var cubeZ = -6.0;
 var cubeSpeed = 4;
 var cubeRotation = 0.0;
 
-main();
-
 //
-// Start here
+// Get rendering context to prepare for rendering
 //
-function main() {
+function getRenderingContext() {
 	const canvas = document.querySelector("#glCanvas");
 	// Initialize the GL context
 	const gl = canvas.getContext("webgl");
@@ -18,124 +16,16 @@ function main() {
 	// Only continue if WebGL is available and working
 	if (!gl) {
 		alert("Unable to initialize WebGL. Your browser or machine may not support it.");
-		return;
+		return null;
 	}
 	
-	// TODO: Use File Reader API to read shader files
+	// Setup GL parameters
+	gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
+	gl.clearDepth(1.0);                 // Clear everything
+	gl.enable(gl.DEPTH_TEST);           // Enable depth testing
+	gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 	
-	// Vertex shader program
-	const vsSource = `
-		attribute vec4 aVertexPosition;
-		attribute vec3 aVertexNormal;
-		attribute vec2 aTextureCoord;
-		
-		uniform mat4 uNormalMatrix;
-		uniform mat4 uModelViewMatrix;
-		uniform mat4 uProjectionMatrix;
-		
-		varying highp vec2 vTextureCoord;
-		varying highp vec3 vLighting;
-		
-		void main(void) {
-			gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-			vTextureCoord = aTextureCoord;
-			
-			// Apply lighting effect
-			highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
-			highp vec3 directionalLightColor = vec3(1, 1, 1);
-			highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
-			
-			highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
-			
-			highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
-			vLighting = ambientLight + (directionalLightColor * directional);
-		}
-	`;
-	
-	// Fragment shader program
-	const fsSource = `
-		varying highp vec2 vTextureCoord;
-		varying highp vec3 vLighting;
-		
-		uniform sampler2D uSampler;
-		
-		void main(void) {
-			highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
-			
-			gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
-		}
-	`;
-	
-	// Initialize a shader program
-	const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
-	
-	// Look up locations
-	const programInfo = {
-		program: shaderProgram,
-		attribLocations: {
-			vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-			vertexNormal: gl.getAttribLocation(shaderProgram, 'aVertexNormal'),
-			textureCoord: gl.getAttribLocation(shaderProgram, 'aTextureCoord'),
-		},
-		uniformLocations: {
-			projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
-			modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
-			normalMatrix: gl.getUniformLocation(shaderProgram, 'uNormalMatrix'),
-			uSampler: gl.getUniformLocation(shaderProgram, 'uSampler'),
-		},
-	};
-	
-	// Initialize the vertex buffers
-	const buffers = initBuffers(gl);
-	
-	// Load texture
-	const texture = loadTexture(gl, './textures/cubetexture.png');
-	
-	var then = 0;
-	
-	// Look up div elements
-	const fpsDiv = document.querySelector("#fps")
-	const frameDiv = document.querySelector("#frameTime")
-	
-	// Create text nodes to save some time for the browser
-	const fpsText = document.createTextNode("");
-	const frameText = document.createTextNode("");
-	
-	// Add those text nodes where they need to go
-	fpsDiv.appendChild(fpsText);
-	frameDiv.appendChild(frameText);
-	
-	// Draw the scene repeatedly
-	function render(now) {
-		now *= 0.001;	// convert to seconds
-		const deltaTime = now - then;
-		then = now;
-		
-		// Check for keyboard input(WASD)
-		if (forwardPressed) cubeZ -= cubeSpeed * deltaTime;			// Move Forward
-		if (backwardPressed) cubeZ += cubeSpeed * deltaTime;	// Move Backward
-		if (leftPressed) cubeX -= cubeSpeed * deltaTime;		// Move Left
-		if (rightPressed) cubeX += cubeSpeed * deltaTime;		// Move Right
-		if (downPressed) cubeY -= cubeSpeed * deltaTime;	// Move Down
-		if (upPressed) cubeY += cubeSpeed * deltaTime;		// Move Up
-		
-		// Draw a frame
-		drawScene(gl, programInfo, buffers, texture, deltaTime);
-		requestAnimationFrame(render);
-		
-		// DEBUGGING: print stuff
-		fpsText.nodeValue = (1 / deltaTime).toFixed(1);	// Print FPS
-		frameText.nodeValue = deltaTime.toFixed(4) * 1000 + "ms";	// Print Frame Time
-	}
-	requestAnimationFrame(render);
-}
-
-function readShader(url) {
-	var fr = new FileReader();
-	fr.onload = function(evt) {
-		console.log(evt.target.result);
-	};
-	readAsText(url);
+	return gl;
 }
 
 //
@@ -397,11 +287,6 @@ function isPowerOf2(value) {
 }
 
 function drawScene(gl, programInfo, buffers, texture, deltaTime) {
-	gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
-	gl.clearDepth(1.0);                 // Clear everything
-	gl.enable(gl.DEPTH_TEST);           // Enable depth testing
-	gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
-	
 	// Clear the canvas before we start drawing on it.
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	
@@ -445,6 +330,11 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime) {
 		cubeRotation * .7,   // amount to rotate in radians
 		[1, 0, 0]);       // axis to rotate around(X)
 	
+	// TODO: Create a camera view matrix for camera
+	//const cameraViewMatrix = glMatrix.mat4.create();
+	//glMatrix.mat4.invert(cameraViewMatrix, modelViewMatrix);
+	
+	// Create a normal matrix for lighting
 	const normalMatrix = glMatrix.mat4.create();
 	glMatrix.mat4.invert(normalMatrix, modelViewMatrix);
 	glMatrix.mat4.transpose(normalMatrix, normalMatrix);
