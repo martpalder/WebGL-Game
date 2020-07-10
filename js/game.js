@@ -74,7 +74,7 @@ function main() {
 		
 		// DEBUGGING: print stats every 2 seconds
 		secondCount += deltaTime;
-		if (secondCount > 1) {
+		if (secondCount > 2) {
 			secondCount = 0;	// Reset seconds
 			fpsText.nodeValue = (1 / deltaTime).toFixed(1);				// Print FPS
 			frameText.nodeValue = (deltaTime * 1000).toFixed(1) + "ms";	// Print Frame Time
@@ -90,7 +90,7 @@ function readTextFile(url) {
 		var contents = request.response;	// not responseText
 		console.log(contents);
 	}
-	request.open("GET", './shaders/shader.vs')
+	request.open("GET", url)
 	request.overrideMimeType("text/plain");
 	request.send();
 }
