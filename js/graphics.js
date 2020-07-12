@@ -1,9 +1,3 @@
-var cubeX = 0.0;
-var cubeY = 0.0;
-var cubeZ = -6.0;
-
-var cubeSpeed = 4;
-var cubeRotation = 0.0;
 
 //
 // Get rendering context to prepare for rendering
@@ -24,6 +18,13 @@ function getRenderingContext() {
 	gl.clearDepth(1.0);                 // Clear everything
 	gl.enable(gl.DEPTH_TEST);           // Enable depth testing
 	gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
+	
+	// Setup game window size
+	const WIDTH = 640;
+	const HEIGHT = 480;
+	const DPR = window.devicePixelRatio;
+	canvas.width = WIDTH * DPR;
+	canvas.height = HEIGHT * DPR;
 	
 	return gl;
 }
@@ -73,161 +74,48 @@ function loadShader(gl, type, source) {
 	return shader;
 }
 
-function initBuffers(gl) {
-	// Create a buffer for the square's positions.
-	const positionBuffer = gl.createBuffer();
+//
+// Initialize buffers for shaders
+//
+function initBuffers(gl, mesh) {
+	// Create and bind a buffer for the vertex positions
+	const vertexBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 	
-	// Select the positionBuffer as the one to apply buffer
-	// operations to from here out.
-	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+	// Get an array of vertex positions for the model and send it to GL
+	const vertices = mesh.vertices;
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 	
-	// Now create an array of positions for the cube.
-	const positions = [
-		// Front face
-		-1.0, -1.0,  1.0,
-		1.0, -1.0,  1.0,
-		1.0,  1.0,  1.0,
-		-1.0,  1.0,  1.0,
-		
-		// Back face
-		-1.0, -1.0, -1.0,
-		-1.0,  1.0, -1.0,
-		1.0,  1.0, -1.0,
-		1.0, -1.0, -1.0,
-		
-		// Top face
-		-1.0,  1.0, -1.0,
-		-1.0,  1.0,  1.0,
-		1.0,  1.0,  1.0,
-		1.0,  1.0, -1.0,
-		
-		// Bottom face
-		-1.0, -1.0, -1.0,
-		1.0, -1.0, -1.0,
-		1.0, -1.0,  1.0,
-		-1.0, -1.0,  1.0,
-		
-		// Right face
-		1.0, -1.0, -1.0,
-		1.0,  1.0, -1.0,
-		1.0,  1.0,  1.0,
-		1.0, -1.0,  1.0,
-		
-		// Left face
-		-1.0, -1.0, -1.0,
-		-1.0, -1.0,  1.0,
-		-1.0,  1.0,  1.0,
-		-1.0,  1.0, -1.0,
-	];
+	// Create and bind a buffer for the texture coordinates
+	const texCoordBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
 	
-	// Now pass the list of positions into WebGL to build the
-	// shape. We do this by creating a Float32Array from the
-	// JavaScript array, then use it to fill the current buffer.
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+	// Get an array of texture coordinates for the model and send it to GL
+	const texCoords = mesh.texCoords;
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
 	
-	const vertexNormals = [
-		// Front
-		0.0,  0.0,  1.0,
-		0.0,  0.0,  1.0,
-		0.0,  0.0,  1.0,
-		0.0,  0.0,  1.0,
-		
-		// Back
-		0.0,  0.0, -1.0,
-		0.0,  0.0, -1.0,
-		0.0,  0.0, -1.0,
-		0.0,  0.0, -1.0,
-		
-		// Top
-		0.0,  1.0,  0.0,
-		0.0,  1.0,  0.0,
-		0.0,  1.0,  0.0,
-		0.0,  1.0,  0.0,
-		
-		// Bottom
-		0.0, -1.0,  0.0,
-		0.0, -1.0,  0.0,
-		0.0, -1.0,  0.0,
-		0.0, -1.0,  0.0,
-		
-		// Right
-		1.0,  0.0,  0.0,
-		1.0,  0.0,  0.0,
-		1.0,  0.0,  0.0,
-		1.0,  0.0,  0.0,
-		
-		// Left
-		-1.0,  0.0,  0.0,
-		-1.0,  0.0,  0.0,
-		-1.0,  0.0,  0.0,
-		-1.0,  0.0,  0.0
-	];
-	
+	// Create and bind a buffer for the vertex normals
 	const normalBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
 	
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
+	// Get an array of positions for the model and send it to GL
+	const normals = mesh.normals;
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
 	
-	const textureCoordBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
-	
-	const textureCoordinates = [
-		// Front
-		0.0,  0.0,
-		1.0,  0.0,
-		1.0,  1.0,
-		0.0,  1.0,
-		// Back
-		0.0,  0.0,
-		1.0,  0.0,
-		1.0,  1.0,
-		0.0,  1.0,
-		// Top
-		0.0,  0.0,
-		1.0,  0.0,
-		1.0,  1.0,
-		0.0,  1.0,
-		// Bottom
-		0.0,  0.0,
-		1.0,  0.0,
-		1.0,  1.0,
-		0.0,  1.0,
-		// Right
-		0.0,  0.0,
-		1.0,  0.0,
-		1.0,  1.0,
-		0.0,  1.0,
-		// Left
-		0.0,  0.0,
-		1.0,  0.0,
-		1.0,  1.0,
-		0.0,  1.0,
-	];
-	
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
-	
+	// Create and bind a buffer for the indices
 	const indexBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 	
-	// This array defines each face as two triangles, using the
-	// indices into the vertex array to specify each triangle's
-	// position.
-	const indices = [
-		0,  1,  2,      0,  2,  3,    // front
-		4,  5,  6,      4,  6,  7,    // back
-		8,  9,  10,     8,  10, 11,   // top
-		12, 13, 14,     12, 14, 15,   // bottom
-		16, 17, 18,     16, 18, 19,   // right
-		20, 21, 22,     20, 22, 23,   // left
-	];
-	
-	// Now send the element array to GL
+	// Get an element array that defines each face as two triangles, using the
+	// indices into the vertex array to specify each triangle's position
+	// and send it to GL
+	const indices = mesh.indices;
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 	
 	return {
-		position: positionBuffer,
-		normal: normalBuffer,
-		textureCoord: textureCoordBuffer,
+		positions: vertexBuffer,
+		texCoords: texCoordBuffer,
+		normals: normalBuffer,
 		indices: indexBuffer,
 	};
 }
@@ -277,6 +165,7 @@ function loadTexture(gl, url) {
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 		}
 	};
+	img.onerror = function() {console.log("Error: '" + url + "' was not loaded!")};
 	img.src = url;
 	
 	return texture;
@@ -286,61 +175,26 @@ function isPowerOf2(value) {
 	return (value & (value - 1)) == 0;
 }
 
-function drawScene(gl, programInfo, buffers, texture, deltaTime) {
+function drawScene(gl, position, rotation, programInfo, buffers, texture) {
 	// Clear the canvas before we start drawing on it.
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	
-	// Create a perspective matrix, a special matrix that is
-	// used to simulate the distortion of perspective in a camera.
-	// Our field of view is 45 degrees, with a width/height
-	// ratio that matches the display size of the canvas
-	// and we only want to see objects between 0.1 units
-	// and 100 units away from the camera.
-	const fieldOfView = 45 * Math.PI / 180;   // in radians
-	const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-	const zNear = 0.1;
-	const zFar = 100.0;
-	const projectionMatrix = glMatrix.mat4.create();
+	// Compute model matrix
+	const model = computeModelMatrix(position, rotation);
 	
-	// note: glmatrix.js always has the first argument
-	// as the destination to receive the result.
-	glMatrix.mat4.perspective(projectionMatrix,
-		fieldOfView,
-		aspect,
-		zNear,
-		zFar);
+	// Compute view matrix
+	const view = computeViewMatrix(model, rotation);
 	
-	// Set the drawing position to the "identity" point, which is
-	// the center of the scene.
-	const modelViewMatrix = glMatrix.mat4.create();
-	
-	// Now move the drawing position a bit to where we want to
-	// start drawing the square.
-	glMatrix.mat4.translate(modelViewMatrix,     // destination matrix
-		modelViewMatrix,     // matrix to translate
-		[cubeX, cubeY, cubeZ]);  // amount to translate
-	
-	// Apply rotation to the cube
-	glMatrix.mat4.rotate(modelViewMatrix,  // destination matrix
-		modelViewMatrix,  // matrix to rotate
-		cubeRotation,   // amount to rotate in radians
-		[0, 0, 1]);       // axis to rotate around(Z)
-	glMatrix.mat4.rotate(modelViewMatrix,  // destination matrix
-		modelViewMatrix,  // matrix to rotate
-		cubeRotation * .7,   // amount to rotate in radians
-		[1, 0, 0]);       // axis to rotate around(X)
-	
-	// TODO: Create a camera view matrix for camera
-	//const cameraViewMatrix = glMatrix.mat4.create();
-	//glMatrix.mat4.invert(cameraViewMatrix, modelViewMatrix);
+	// Compute perspective matrix
+	const projection = computePerspectiveMatrix(gl);
 	
 	// Create a normal matrix for lighting
-	const normalMatrix = glMatrix.mat4.create();
-	glMatrix.mat4.invert(normalMatrix, modelViewMatrix);
-	glMatrix.mat4.transpose(normalMatrix, normalMatrix);
+	const normal = glMatrix.mat4.create();
+	glMatrix.mat4.invert(normal, model);
+	glMatrix.mat4.transpose(normal, normal);
 	
 	// Tell WebGL how to pull out the positions from
-	// the position buffer into the vertexPosition attribute.
+	// the position buffer into the vertexPos attribute.
 	{
 		const numComponents = 3;  // pull out 3 values per iteration
 		const type = gl.FLOAT;    // the data in the buffer is 32bit floats
@@ -348,33 +202,14 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime) {
 		const stride = 0;         // how many bytes to get from one set of values to the next
 								// 0 = use type and numComponents above
 		const offset = 0;         // how many bytes inside the buffer to start from
-		gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-		gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition,
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffers.positions);
+		gl.vertexAttribPointer(programInfo.attribLocations.vertexPos,
 			numComponents,
 			type,
 			normalize,
 			stride,
 			offset);
-		gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
-	}
-	
-	// Tell WebGL how to pull out the normals from
-	// the normal buffer into the vertexNormal attribute.
-	{
-		const numComponents = 3;
-		const type = gl.FLOAT;
-		const normalize = false;
-		const stride = 0;
-		const offset = 0;
-		gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normal);
-		gl.vertexAttribPointer(
-			programInfo.attribLocations.vertexNormal,
-			numComponents,
-			type,
-			normalize,
-			stride,
-			offset);
-		gl.enableVertexAttribArray(programInfo.attribLocations.vertexNormal);
+		gl.enableVertexAttribArray(programInfo.attribLocations.vertexPos);
 	}
 	
 	// Tell WebGL how to pull out the texture coordinates from
@@ -385,14 +220,33 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime) {
 		const normalize = false; // don't normalize
 		const stride = 0; // how many bytes to get from one set to the next
 		const offset = 0; // how many bytes inside the buffer to start from
-		gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureCoord);
-		gl.vertexAttribPointer(programInfo.attribLocations.textureCoord,
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffers.texCoords);
+		gl.vertexAttribPointer(programInfo.attribLocations.texCoord,
 			numComponents,
 			type,
 			normalize,
 			stride,
 			offset);
-		gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
+		gl.enableVertexAttribArray(programInfo.attribLocations.texCoord);
+	}
+	
+	// Tell WebGL how to pull out the normals from
+	// the normal buffer into the vertexNormal attribute.
+	{
+		const numComponents = 3;
+		const type = gl.FLOAT;
+		const normalize = false;
+		const stride = 0;
+		const offset = 0;
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normals);
+		gl.vertexAttribPointer(
+			programInfo.attribLocations.vertexNormal,
+			numComponents,
+			type,
+			normalize,
+			stride,
+			offset);
+		gl.enableVertexAttribArray(programInfo.attribLocations.vertexNormal);
 	}
 	
 	// Tell WebGL which indices to use to index the vertices
@@ -403,17 +257,21 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime) {
 	
 	// Set the shader uniforms
 	gl.uniformMatrix4fv(
-		programInfo.uniformLocations.projectionMatrix,
+		programInfo.uniformLocations.projection,
 		false,
-		projectionMatrix);
+		projection);
 	gl.uniformMatrix4fv(
-		programInfo.uniformLocations.modelViewMatrix,
+		programInfo.uniformLocations.view,
 		false,
-		modelViewMatrix);
+		view);
 	gl.uniformMatrix4fv(
-		programInfo.uniformLocations.normalMatrix,
+		programInfo.uniformLocations.model,
 		false,
-		normalMatrix);
+		model);
+	gl.uniformMatrix4fv(
+		programInfo.uniformLocations.normal,
+		false,
+		normal);
 	
 	// Tell WebGL we want to affect texture unit 0
 	gl.activeTexture(gl.TEXTURE0);
@@ -431,7 +289,76 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime) {
 		const offset = 0;
 		gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
 	}
+}
+
+function computeModelMatrix(position, rotation) {
+	// Set the drawing position to the "identity" point, which is
+	// the center of the scene.
+	const model = glMatrix.mat4.create();
 	
-	// Update the rotation for the next draw
-	cubeRotation += deltaTime;
+	// Now move the drawing position a bit to where we want to
+	// start drawing the cube
+	glMatrix.mat4.translate(model,     // destination matrix
+		model,     // matrix to translate
+		[position.x, position.y, position.z]);  // amount to translate
+	
+	// Apply rotation to the cube
+	glMatrix.mat4.rotate(model,  // destination matrix
+		model,  // matrix to rotate
+		rotation,   // amount to rotate in radians
+		[0, 0, 1]);       // axis to rotate around(Z)
+	glMatrix.mat4.rotate(model,  // destination matrix
+		model,  // matrix to rotate
+		rotation * .7,   // amount to rotate in radians
+		[1, 0, 0]);       // axis to rotate around(X)
+	
+	return model;
+}
+
+function computeViewMatrix(model) {
+	// Create a view matrix for controlling the camera
+	const view = glMatrix.mat4.create();
+	
+	// Move the camera's position
+	glMatrix.mat4.translate(view,	// destination matrix
+		view,	// matrix to translate
+		[0.0, 0.0, 0.0]);	// amount to translate
+	
+	// Invert the view matrix
+	glMatrix.mat4.invert(view, view);
+	
+	return view;
+}
+
+function computePerspectiveMatrix(gl) {
+	// Create a perspective matrix, a special matrix that is
+	// used to simulate the distortion of perspective in a camera.
+	// Our field of view is 45 degrees, with a width/height
+	// ratio that matches the display size of the canvas
+	// and we only want to see objects between 1 units
+	// and 100 units away from the camera.
+	const fieldOfView = 45 * Math.PI / 180;   // in radians
+	const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+	const zNear = 1.0;
+	const zFar = 100.0;
+	const projection = glMatrix.mat4.create();
+	
+	// note: glmatrix.js always has the first argument
+	// as the destination to receive the result.
+	glMatrix.mat4.perspective(projection,
+		fieldOfView,
+		aspect,
+		zNear,
+		zFar);
+	
+	return projection;
+}
+
+function printDebugInfo(gl) {
+	const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+	const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+	const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+	
+	console.log("GPU Vendor: " + vendor);
+	console.log("GPU Renderer: " + renderer);
 }

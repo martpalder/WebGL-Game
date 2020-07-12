@@ -4,12 +4,28 @@ main();
 // Start here
 //
 function main() {
+	// Game variables
+	// Cube speed
+	const cubeSpeed = 4;
+	
+	// Cube position
+	var cubePos = glMatrix.vec3.create();
+	cubePos.x = 0.0
+	cubePos.y = 0.0
+	cubePos.z = -6.0
+	
+	// Cube rotation
+	var cubeRotation = 0.0;
+	
 	// Get rendering context
 	const gl = getRenderingContext();
 	
-	// Open shader sources
-	const vsSrc = document.querySelector("#vertex-shader").textContent;		// Vertex shader program
-	const fsSrc = document.querySelector("#fragment-shader").textContent;	// Fragment shader program
+	// Print debug info
+	printDebugInfo(gl);
+	
+	// Read shader files using XMLHttpRequest
+	const vsSrc = readTextFile('./shaders/shader.vs');
+	const fsSrc = readTextFile('./shaders/shader.fs');
 	
 	// Initialize a shader program
 	const shaderProgram = initShaderProgram(gl, vsSrc, fsSrc);
@@ -18,27 +34,35 @@ function main() {
 	const programInfo = {
 		program: shaderProgram,
 		attribLocations: {
-			vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+			vertexPos: gl.getAttribLocation(shaderProgram, 'aVertexPos'),
+			texCoord: gl.getAttribLocation(shaderProgram, 'aTexCoord'),
 			vertexNormal: gl.getAttribLocation(shaderProgram, 'aVertexNormal'),
-			textureCoord: gl.getAttribLocation(shaderProgram, 'aTextureCoord'),
 		},
 		uniformLocations: {
-			projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
-			modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
-			normalMatrix: gl.getUniformLocation(shaderProgram, 'uNormalMatrix'),
+			projection: gl.getUniformLocation(shaderProgram, 'uProjection'),
+			view: gl.getUniformLocation(shaderProgram, 'uView'),
+			model: gl.getUniformLocation(shaderProgram, 'uModel'),
+			normal: gl.getUniformLocation(shaderProgram, 'uNormal'),
 			uSampler: gl.getUniformLocation(shaderProgram, 'uSampler'),
 		},
 	};
 	
-	// Initialize the vertex buffers
-	const buffers = initBuffers(gl);
+	// Load an OBJ mesh file
+	mesh = loadMesh('./meshes/Cube.obj');
 	
-	// Load texture
+	// Initialize the vertex buffers
+	const buffers = initBuffers(gl, mesh);
+	
+	// Load a texture
 	const texture = loadTexture(gl, './textures/cubetexture.png');
 	
 	// Initialize audio
-	initAudio('./audio/music/A-Team_Theme.ogg');
+	const audioElement = initAudio();
 	
+	// Set audio file
+	setAudio(audioElement, './audio/music/A-team_Theme.ogg');
+	
+	// User Interface(UI)
 	// Look up div elements
 	const fpsDiv = document.querySelector("#fps")
 	const frameDiv = document.querySelector("#frameTime")
@@ -61,16 +85,19 @@ function main() {
 		then = now;
 		
 		// Move the cube with keyboard controls
-		if (forwardPressed) cubeZ -= cubeSpeed * deltaTime;		// Forward
-		if (backwardPressed) cubeZ += cubeSpeed * deltaTime;	// Backward
-		if (leftPressed) cubeX -= cubeSpeed * deltaTime;		// Left
-		if (rightPressed) cubeX += cubeSpeed * deltaTime;		// Right
-		if (downPressed) cubeY -= cubeSpeed * deltaTime;		// Down
-		if (upPressed) cubeY += cubeSpeed * deltaTime;			// Up
+		if (forwardPressed) cubePos.z -= cubeSpeed * deltaTime;		// Forward
+		if (backwardPressed) cubePos.z += cubeSpeed * deltaTime;	// Backward
+		if (leftPressed) cubePos.x -= cubeSpeed * deltaTime;		// Left
+		if (rightPressed) cubePos.x += cubeSpeed * deltaTime;		// Right
+		if (downPressed) cubePos.y -= cubeSpeed * deltaTime;		// Down
+		if (upPressed) cubePos.y += cubeSpeed * deltaTime;			// Up
 		
 		// Draw the scene
-		drawScene(gl, programInfo, buffers, texture, deltaTime);
+		drawScene(gl, cubePos, cubeRotation, programInfo, buffers, texture);
 		requestAnimationFrame(render);
+		
+		// Update the rotation for the next draw
+		cubeRotation += deltaTime;
 		
 		// DEBUGGING: print stats every 2 seconds
 		secondCount += deltaTime;
@@ -81,16 +108,4 @@ function main() {
 		}
 	}
 	requestAnimationFrame(render);
-}
-
-function readTextFile(url) {
-	const request = new XMLHttpRequest();
-	
-	request.onload = function(e) {
-		var contents = request.response;	// not responseText
-		console.log(contents);
-	}
-	request.open("GET", url)
-	request.overrideMimeType("text/plain");
-	request.send();
 }
