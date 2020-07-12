@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>My WebGL</title>
+		<title>My WebGL Game</title>
 		<meta charset="UTF-8">
 		<link rel="stylesheet" href="./css/styles.css">
 		<script src="./js/gl-matrix/gl-matrix.js"></script>
 	</head>
-		
+	
 	<body>
 		<div class="container">
 			<canvas id="glCanvas" width="640" height="480"></canvas>
@@ -18,74 +18,34 @@
 		<event onkeydown="keydownhandler(event)" onkeyup="keyuphandler(event)">
 	</body>
 	
-	<!--Vertex Shader Program-->
-	<script type="x-shader/x-vertex" id="vertex-shader">
-		#version 100
-		attribute vec4 aVertexPosition;
-		attribute vec3 aVertexNormal;
-		attribute vec2 aTextureCoord;
-		
-		uniform mat4 uNormalMatrix;
-		uniform mat4 uModelViewMatrix;
-		uniform mat4 uProjectionMatrix;
-		
-		varying highp vec2 vTextureCoord;
-		varying highp vec3 vLighting;
-		
-		void main(void) {
-			gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-			vTextureCoord = aTextureCoord;
-			
-			// Apply lighting effect
-			highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
-			highp vec3 directionalLightColor = vec3(1, 1, 1);
-			highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
-			
-			highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
-			
-			highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
-			vLighting = ambientLight + (directionalLightColor * directional);
-		}
-	</script>
-	<!--Fragment Shader Program-->
-	<script type="x-shader/x-fragment" id="fragment-shader">
-		#version 100
-		varying highp vec2 vTextureCoord;
-		varying highp vec3 vLighting;
-		
-		uniform sampler2D uSampler;
-		
-		void main(void) {
-			highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
-			
-			gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
-		}
-	</script>
-	
 	<!--Audio Content-->
-	<audio id="music"></audio>
+	<audio id="gameAudio"></audio>
 	<button data-playing="false" role="switch" aria-checked="false">
 		<span>Play/Pause Music</span>
 	</button>
 	
 	<!-- Game Source Files-->
+	<script src="./js/mesh.js"></script>
 	<script src="./js/graphics.js"></script>
+	<script src="./js/filereader.js"></script>
 	<script src="./js/audio.js"></script>
 	<script src="./js/input.js"></script>
 	<script src="./js/game.js"></script>
 	
 	<!--Controls-->
-	<h3><br>Controls</h3>
-	<p>
-		Press <kbd class="key">W</kbd> or <kbd class="key">Up</kbd> to move forward
-		and <kbd class="key">S</kbd> or <kbd class="key">Down</kbd> to move backward.
-	</p>
-	<p>
-		Press <kbd class="key">A</kbd> or <kbd class="key">Left</kbd> to move left
-		and <kbd class="key">D</kbd> or <kbd class="key">Right</kbd> to move right.
-	</p>
-	<p>
-		Press <kbd class="key">Q</kbd> to move down
-		and <kbd class="key">E</kbd> to move up.
-	</p>
+	<div id="controls">
+		<h3><br>Controls</h3>
+		<p>
+			Press <kbd class="key">W</kbd> or <kbd class="key">Up</kbd> to move forward
+			and <kbd class="key">S</kbd> or <kbd class="key">Down</kbd> to move backward.
+		</p>
+		<p>
+			Press <kbd class="key">A</kbd> or <kbd class="key">Left</kbd> to move left
+			and <kbd class="key">D</kbd> or <kbd class="key">Right</kbd> to move right.
+		</p>
+		<p>
+			Press <kbd class="key">Q</kbd> to move down
+			and <kbd class="key">E</kbd> to move up.
+		</p>
+	</div>
 </html>
