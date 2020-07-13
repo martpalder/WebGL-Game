@@ -1,4 +1,4 @@
-function initAudio(id) {
+function initAudio() {
 	// Create Audio Context
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	const audioContext = new AudioContext();
