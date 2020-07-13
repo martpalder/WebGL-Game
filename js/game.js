@@ -60,10 +60,10 @@ function main() {
 	const texture = loadTexture(gl, './textures/cubetexture.png');
 	
 	// Initialize music
-	const audioElement = initAudio();
+	const music = initAudio('#music');
 	
 	// Set music file
-	audioElement.src = './audio/music/A-team_Theme.ogg';
+	music.src = './audio/music/bensound-summer.mp3';
 	
 	// User Interface(UI)
 	// Create text elements

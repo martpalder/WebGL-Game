@@ -1,10 +1,10 @@
-function initAudio() {
+function initAudio(id) {
 	// Create Audio Context
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	const audioContext = new AudioContext();
 	
 	// Create an audio element
-	const audioElement = new Audio();
+	const audioElement = document.querySelector(id);
 	
 	// Pass it into the audio context
 	const track = audioContext.createMediaElementSource(audioElement);
