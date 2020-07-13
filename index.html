@@ -11,18 +11,23 @@
 		<div class="container">
 			<canvas id="glCanvas" width="640" height="480"></canvas>
 		</div>
-		<event onkeydown="keydownhandler(event)" onkeyup="keyuphandler(event)">
+		<audio id="music"></audio>
 		<!--Music button-->
 		<button data-playing="false" role="switch" aria-checked="false">
 			<span>Play/Pause Music</span>
 		</button>
+		<p><b>Music:</b>&ensp;"Summer" from <a href="https://www.bensound.com/" target="_blank">Bensound.com</a></p>
+		<!--Stats-->
 		<div id="stats">
-			<p id="fps">FPS:&ensp;</p>
+			<p id="fps"><br>FPS:&ensp;</p>
 			<p id="frameTime">Frame Time:&ensp;</p>
 			<p id="meshPos">Cube:&ensp;</p>
 			<p id="cameraPos">Camera:&ensp;</p>
 		</div>
 	</body>
+	
+	<!--Keyboard Event-->
+	<event onkeydown="keydownhandler(event)" onkeyup="keyuphandler(event)">
 	
 	<!-- Game Source Files-->
 	<script src="./js/mesh.js"></script>
