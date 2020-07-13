@@ -10,19 +10,19 @@
 	<body>
 		<div class="container">
 			<canvas id="glCanvas" width="640" height="480"></canvas>
-			<div id="overlay">
-				<div>FPS:&ensp;<span id="fps"></span></div>
-				<div>Frame Time:&ensp;<span id="frameTime"></span></div>
-			</div>
 		</div>
 		<event onkeydown="keydownhandler(event)" onkeyup="keyuphandler(event)">
+		<!--Music button-->
+		<button data-playing="false" role="switch" aria-checked="false">
+			<span>Play/Pause Music</span>
+		</button>
+		<div id="stats">
+			<p id="fps">FPS:&ensp;</p>
+			<p id="frameTime">Frame Time:&ensp;</p>
+			<p id="meshPos">Cube:&ensp;</p>
+			<p id="cameraPos">Camera:&ensp;</p>
+		</div>
 	</body>
-	
-	<!--Audio Content-->
-	<audio id="gameAudio"></audio>
-	<button data-playing="false" role="switch" aria-checked="false">
-		<span>Play/Pause Music</span>
-	</button>
 	
 	<!-- Game Source Files-->
 	<script src="./js/mesh.js"></script>
@@ -36,16 +36,13 @@
 	<div id="controls">
 		<h3><br>Controls</h3>
 		<p>
-			Press <kbd class="key">W</kbd> or <kbd class="key">Up</kbd> to move forward
-			and <kbd class="key">S</kbd> or <kbd class="key">Down</kbd> to move backward.
+			<kbd class="key">W</kbd><kbd class="key">A</kbd><kbd class="key">S</kbd><kbd class="key">D</kbd>
+			and <kbd class="key">Arrow keys</kbd> move the cube horizontally,
+			<kbd class="key">Q</kbd> and <kbd class="key">E</kbd> move the cube vertically.
 		</p>
 		<p>
-			Press <kbd class="key">A</kbd> or <kbd class="key">Left</kbd> to move left
-			and <kbd class="key">D</kbd> or <kbd class="key">Right</kbd> to move right.
-		</p>
-		<p>
-			Press <kbd class="key">Q</kbd> to move down
-			and <kbd class="key">E</kbd> to move up.
-		</p>
+			<kbd class="key">Numpad arrows</kbd> move the camera horizontally,
+			<kbd class="key">Numpad 7</kbd> and <kbd class="key">Numpad 9</kbd> keys move the camera vertically.
+		<p/>
 	</div>
 </html>
