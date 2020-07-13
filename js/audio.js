@@ -1,10 +1,10 @@
-function initAudio() {
+function initAudio(id) {
 	// Create Audio Context
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	const audioContext = new AudioContext();
 	
-	// Get the audio element
-	const audioElement = document.querySelector('audio');
+	// Create an audio element
+	const audioElement = new Audio();
 	
 	// Pass it into the audio context
 	const track = audioContext.createMediaElementSource(audioElement);
@@ -37,8 +37,4 @@ function initAudio() {
 	}, false);
 	
 	return audioElement;
-}
-
-function setAudio(audioElement, url) {
-	audioElement.src = url;
 }

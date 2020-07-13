@@ -113,10 +113,10 @@ function initBuffers(gl, mesh) {
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 	
 	return {
-		positions: vertexBuffer,
+		vertices: vertexBuffer,
 		texCoords: texCoordBuffer,
 		normals: normalBuffer,
-		indices: indexBuffer,
+		indices: indexBuffer
 	};
 }
 
@@ -175,17 +175,17 @@ function isPowerOf2(value) {
 	return (value & (value - 1)) == 0;
 }
 
-function drawScene(gl, position, rotation, programInfo, buffers, texture) {
-	// Clear the canvas before we start drawing on it.
+function drawScene(gl, object, camera, programInfo, buffers, texture, vertexCount) {
+	// Clear the canvas before we start drawing on it
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	
-	// Compute model matrix
-	const model = computeModelMatrix(position, rotation);
+	// Compute model matrix for controlling the model
+	const model = computeModelMatrix(object);
 	
-	// Compute view matrix
-	const view = computeViewMatrix(model, rotation);
+	// Compute view matrix for controlling the camera
+	const view = computeViewMatrix(camera);
 	
-	// Compute perspective matrix
+	// Compute perspective matrix to simulate the distortion of perspective in a camera
 	const projection = computePerspectiveMatrix(gl);
 	
 	// Create a normal matrix for lighting
@@ -193,8 +193,8 @@ function drawScene(gl, position, rotation, programInfo, buffers, texture) {
 	glMatrix.mat4.invert(normal, model);
 	glMatrix.mat4.transpose(normal, normal);
 	
-	// Tell WebGL how to pull out the positions from
-	// the position buffer into the vertexPos attribute.
+	// Tell WebGL how to pull out the vertices from
+	// the vertexBuffer into the vertexPos attribute.
 	{
 		const numComponents = 3;  // pull out 3 values per iteration
 		const type = gl.FLOAT;    // the data in the buffer is 32bit floats
@@ -202,7 +202,7 @@ function drawScene(gl, position, rotation, programInfo, buffers, texture) {
 		const stride = 0;         // how many bytes to get from one set of values to the next
 								// 0 = use type and numComponents above
 		const offset = 0;         // how many bytes inside the buffer to start from
-		gl.bindBuffer(gl.ARRAY_BUFFER, buffers.positions);
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffers.vertices);
 		gl.vertexAttribPointer(programInfo.attribLocations.vertexPos,
 			numComponents,
 			type,
@@ -212,8 +212,8 @@ function drawScene(gl, position, rotation, programInfo, buffers, texture) {
 		gl.enableVertexAttribArray(programInfo.attribLocations.vertexPos);
 	}
 	
-	// Tell WebGL how to pull out the texture coordinates from
-	// the texture coordinates buffer into the texCoord attribute
+	// Tell WebGL how to pull out the texCoords from
+	// the texCoordsBuffer into the texCoord attribute
 	{
 		const numComponents = 2; // every coordinate composed of 2 values
 		const type = gl.FLOAT; // the data in the buffer is 32 bit float
@@ -231,7 +231,7 @@ function drawScene(gl, position, rotation, programInfo, buffers, texture) {
 	}
 	
 	// Tell WebGL how to pull out the normals from
-	// the normal buffer into the vertexNormal attribute.
+	// the normalBuffer into the vertexNormal attribute.
 	{
 		const numComponents = 3;
 		const type = gl.FLOAT;
@@ -251,7 +251,6 @@ function drawScene(gl, position, rotation, programInfo, buffers, texture) {
 	
 	// Tell WebGL which indices to use to index the vertices
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
-	
 	// Tell WebGL to use our program when drawing
 	gl.useProgram(programInfo.program);
 	
@@ -284,14 +283,14 @@ function drawScene(gl, position, rotation, programInfo, buffers, texture) {
 	
 	// Draw using the cube's index buffer
 	{
-		const vertexCount = 36;
+		//const vertexCount = 36;
 		const type = gl.UNSIGNED_SHORT;
 		const offset = 0;
 		gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
 	}
 }
 
-function computeModelMatrix(position, rotation) {
+function computeModelMatrix(object) {
 	// Set the drawing position to the "identity" point, which is
 	// the center of the scene.
 	const model = glMatrix.mat4.create();
@@ -300,32 +299,35 @@ function computeModelMatrix(position, rotation) {
 	// start drawing the cube
 	glMatrix.mat4.translate(model,     // destination matrix
 		model,     // matrix to translate
-		[position.x, position.y, position.z]);  // amount to translate
+		[object.position.x, object.position.y, object.position.z]);  // amount to translate
 	
 	// Apply rotation to the cube
 	glMatrix.mat4.rotate(model,  // destination matrix
 		model,  // matrix to rotate
-		rotation,   // amount to rotate in radians
+		object.rotation,   // amount to rotate in radians
 		[0, 0, 1]);       // axis to rotate around(Z)
 	glMatrix.mat4.rotate(model,  // destination matrix
 		model,  // matrix to rotate
-		rotation * .7,   // amount to rotate in radians
+		object.rotation * .7,   // amount to rotate in radians
 		[1, 0, 0]);       // axis to rotate around(X)
 	
 	return model;
 }
 
-function computeViewMatrix(model) {
+function computeViewMatrix(camera) {
 	// Create a view matrix for controlling the camera
 	const view = glMatrix.mat4.create();
 	
 	// Move the camera's position
 	glMatrix.mat4.translate(view,	// destination matrix
 		view,	// matrix to translate
-		[0.0, 0.0, 0.0]);	// amount to translate
+		[-camera.position.x, -camera.position.y, -camera.position.z]);	// amount to translate
 	
-	// Invert the view matrix
-	glMatrix.mat4.invert(view, view);
+	// Apply rotation to the camera
+	glMatrix.mat4.rotate(view,  // destination matrix
+		view,  // matrix to rotate
+		camera.rotation,   // amount to rotate in radians
+		[0, 1, 0]);       // axis to rotate around(Z)
 	
 	return view;
 }

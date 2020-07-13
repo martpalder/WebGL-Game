@@ -3,6 +3,7 @@ function Mesh() {
 	this.texCoords = new Array();;
 	this.normals = new Array();;
 	this.indices = new Array();
+	this.vertexCount = 0;
 }
 
 function loadMesh(url) {
@@ -49,6 +50,7 @@ function loadMesh(url) {
 			// Push to mesh.indices array
 			for (i = 0; i < index.length; ++i) {
 				mesh.indices.push(index[i]);
+				++mesh.vertexCount;	// increase vertex count;
 			}
 		}
 	}
